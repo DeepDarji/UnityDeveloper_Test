@@ -1,46 +1,26 @@
 using UnityEngine;
+using static UnityEditor.FilePathAttribute;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    public float jumpForce = 5f;
-    private bool isGrounded;
-    private Rigidbody rb;
-
-    void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-    }
+    public float speed = 5f;
+    public Rigidbody playerRigidbody;
 
     void Update()
     {
-        Move();
-        Jump();
+        MovePlayer();
     }
 
-    void Move()
+    void MovePlayer()
     {
-        float moveX = Input.GetAxis("Horizontal"); // A and D keys
-        float moveZ = Input.GetAxis("Vertical");   // W and S keys
+        // Get input axes
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
 
-        Vector3 movement = new Vector3(moveX, 0, moveZ) * moveSpeed * Time.deltaTime;
-        transform.Translate(movement, Space.Self);
-    }
+        // Determine the movement direction relative to the player's current orientation
+        Vector3 movement = transform.right * moveHorizontal + transform.forward * moveVertical;
 
-    void Jump()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false;
-        }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Wall"))
-        {
-            isGrounded = true;
-        }
+        // Apply the movement relative to the current gravity
+        playerRigidbody.MovePosition(playerRigidbody.position + movement * speed * Time.deltaTime);
     }
 }
